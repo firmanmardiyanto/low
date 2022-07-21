@@ -90,7 +90,7 @@
 		{:else}
 			<button
 				type="button"
-				class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow bg-blue-500 hover:bg-blue-700 text-white rounded-full transition ease-in-out duration-150"
+				class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow bg-indigo-500 hover:bg-indigo-700 text-white rounded-full transition ease-in-out duration-150"
 				disabled={!error.message}
 			>
 				<svg

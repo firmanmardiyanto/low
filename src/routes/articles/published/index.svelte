@@ -1,30 +1,12 @@
 <script>
-	import authStore from '../stores/authStore';
-	import { CONTEXTS } from '../utils/constants';
-	import share from '../utils/share';
+	import authStore from '../../../stores/authStore';
+	import { CONTEXTS } from '../../../utils/constants';
+	import share from '../../../utils/share';
 	let user;
 	authStore.subscribe((state) => {
 		user = state[CONTEXTS.USER];
 		console.log(state);
 	});
-	const categories = [
-		{
-			id: 1,
-			name: 'ReactJs'
-		},
-		{
-			id: 2,
-			name: 'NodeJs'
-		},
-		{
-			id: 3,
-			name: 'Kotlin'
-		},
-		{
-			id: 4,
-			name: 'Android Development'
-		}
-	];
 
 	const articles = [
 		{
@@ -73,8 +55,7 @@
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
 	<h1 class="sr-only">Page title</h1>
 	<!-- Main 3 column grid -->
-	<div class="grid grid-cols-1 gap-4 items-start lg:grid-cols-3 lg:gap-8">
-		<!-- Left column -->
+	<div class="grid grid-cols-1 gap-4">
 		<div class="grid grid-cols-1 gap-4 lg:col-span-2">
 			<section aria-labelledby="section-1-title">
 				<h2 class="sr-only" id="section-1-title">Content</h2>
@@ -84,9 +65,9 @@
 						<!-- This example requires Tailwind CSS v2.0+ -->
 						<ul class="grid grid-cols-1 gap-5">
 							<div>
-								<h3 class="text-lg leading-6 font-medium text-gray-900">Articles</h3>
+								<h3 class="text-lg leading-6 font-medium text-gray-900">Published</h3>
 								<p class="mt-1 text-sm text-gray-500">
-									List of articles
+									List of published articles
 								</p>
 							</div>
 							{#each articles as article}
@@ -179,25 +160,6 @@
 							{/each}
 							<!-- More people... -->
 						</ul>
-					</div>
-				</div>
-			</section>
-		</div>
-
-		<!-- Right column -->
-		<div class="grid grid-cols-1 gap-4">
-			<section aria-labelledby="section-2-title">
-				<h2 class="sr-only" id="section-2-title">Category & Tags</h2>
-				<div class="rounded-lg bg-white overflow-hidden shadow">
-					<div class="p-6">
-						<h2 class="text-lg font-medium text-gray-900 mb-3">Categories</h2>
-						{#each categories as category}
-							<a
-								href="/categories/{category.slug}"
-								class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-								>{category.name}</a
-							>
-						{/each}
 					</div>
 				</div>
 			</section>

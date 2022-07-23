@@ -1,30 +1,22 @@
 <script>
+	import { onMount } from 'svelte';
+	import API from '../lib/API';
 	import authStore from '../stores/authStore';
 	import { CONTEXTS } from '../utils/constants';
 	import share from '../utils/share';
+
 	let user;
 	authStore.subscribe((state) => {
 		user = state[CONTEXTS.USER];
 		console.log(state);
 	});
-	const categories = [
-		{
-			id: 1,
-			name: 'ReactJs'
-		},
-		{
-			id: 2,
-			name: 'NodeJs'
-		},
-		{
-			id: 3,
-			name: 'Kotlin'
-		},
-		{
-			id: 4,
-			name: 'Android Development'
-		}
-	];
+
+	let categories = [];
+	onMount(() => {
+		API.get('/categories').then((res) => {
+			categories = res.categories;
+		});
+	});
 
 	const articles = [
 		{
@@ -85,9 +77,7 @@
 						<ul class="grid grid-cols-1 gap-5">
 							<div>
 								<h3 class="text-lg leading-6 font-medium text-gray-900">Articles</h3>
-								<p class="mt-1 text-sm text-gray-500">
-									List of articles
-								</p>
+								<p class="mt-1 text-sm text-gray-500">List of articles</p>
 							</div>
 							{#each articles as article}
 								<li class="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
@@ -193,7 +183,7 @@
 						<h2 class="text-lg font-medium text-gray-900 mb-3">Categories</h2>
 						{#each categories as category}
 							<a
-								href="/categories/{category.slug}"
+								href="/categories/{category.id}"
 								class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
 								>{category.name}</a
 							>

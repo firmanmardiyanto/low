@@ -4,12 +4,14 @@
 	import { CONTEXTS } from '../utils/constants';
 	import isActivePath, { CREATE_ARTICLE_PAGE_PATH } from '../utils/isActivePath';
 	import { page } from '$app/stores';
-
-	let pathname = window.location.pathname;
-	page.subscribe((state) => {
-		pathname = state.url.pathname;
-	});
-
+	import { browser } from '$app/env';
+	let pathname = '';
+	if (browser) {
+		pathname = window.location.pathname;
+		page.subscribe((state) => {
+			pathname = state.url.pathname;
+		});
+	}
 	let user;
 	authStore.subscribe((state) => {
 		user = state[CONTEXTS.USER];

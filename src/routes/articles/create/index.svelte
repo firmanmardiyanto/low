@@ -2,17 +2,20 @@
 	import authStore from '../../../stores/authStore';
 	import { CONTEXTS } from '../../../utils/constants';
 	import articleSlug from '../../../utils/articleSlug';
+	import API from '../../../lib/API';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/env';
 
 	let user;
 	authStore.subscribe((state) => {
 		user = state[CONTEXTS.USER];
 		console.log(state);
 	});
-	import { onMount } from 'svelte';
-	import { browser } from '$app/env';
 
 	let contents = '';
 	let baseUrl = '';
+
+	let categories = [];
 
 	onMount(async () => {
 		if (browser && typeof window !== 'undefined') {
@@ -36,7 +39,50 @@
 					console.error(err);
 				});
 		}
+
+		API.get('/categories').then((res) => {
+			categories = res.categories;
+		});
 	});
+
+	let title = '';
+	let description = '';
+	let tags = '';
+	let category_ids = [];
+	let published = false;
+
+	const onCancel = () => {
+		window.history.back();
+	};
+
+	let error = '';
+	let success = '';
+
+	const onSubmit = () => {
+		const data = {
+			slug: articleSlug({ title, authorId: user.id }),
+			title,
+			description,
+			content: contents,
+			tags,
+			category_ids,
+			published: Boolean(published)
+		};
+		console.log(data);
+		API.post('/articles', data)
+			.then((res) => {
+				if (res.status == 'error') {
+					error = res.message;
+				} else {
+					success = 'Article created successfully';
+					window.location.reload();
+				}
+			})
+			.catch((err) => {
+				error = err.message;
+				success = '';
+			});
+	};
 </script>
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -74,7 +120,7 @@
 													name="slug"
 													id="slug"
 													value={articleSlug({
-														title: 'ReactJs &**& jkdwa',
+														title,
 														authorId: user?.id
 													})}
 													autocomplete="off"
@@ -91,6 +137,7 @@
 												<input
 													type="text"
 													name="title"
+													bind:value={title}
 													id="title"
 													autocomplete="title"
 													class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
@@ -105,6 +152,7 @@
 											<div class="mt-1">
 												<textarea
 													id="description"
+													bind:value={description}
 													name="description"
 													rows="3"
 													class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
@@ -133,6 +181,7 @@
 											<div class="mt-1">
 												<input
 													type="text"
+													bind:value={tags}
 													name="tags"
 													id="tags"
 													autocomplete="tags"
@@ -145,38 +194,65 @@
 										</div>
 
 										<div class="sm:col-span-6">
-											<div class="relative flex items-start mt-1">
-												<div class="flex items-center h-5">
-													<input
-														id="publish"
-														name="publish"
-														value="true"
-														type="checkbox"
-														class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-													/>
-												</div>
-												<div class="ml-3 text-sm">
-													<label for="publish" class="font-medium text-gray-700">Publish?</label>
-													<p class="text-gray-500">Publish your article to the public.</p>
+											<label for="categories" class="block text-sm font-medium text-gray-700">
+												Categories
+											</label>
+											<div class="mt-1">
+												<select
+													multiple
+													bind:value={category_ids}
+													name="categories"
+													id="categories"
+													class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+												>
+													<option value="" disabled>Select a category</option>
+													{#each categories as category}
+														<option value={category.id}>{category.name}</option>
+													{/each}
+												</select>
+											</div>
+											<p class="mt-2 text-sm text-gray-500">Select a category for your article.</p>
+
+											<div class="sm:col-span-6">
+												<div class="relative flex items-start mt-1">
+													<div class="flex items-center h-5">
+														<input
+															id="publish"
+															name="publish"
+															bind:value={published}
+															type="checkbox"
+															class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+														/>
+													</div>
+													<div class="ml-3 text-sm">
+														<label for="publish" class="font-medium text-gray-700">Publish?</label>
+														<p class="text-gray-500">Publish your article to the public.</p>
+													</div>
 												</div>
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
 
-							<div class="pt-5">
-								<div class="flex justify-end">
-									<button
-										type="button"
-										class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-										>Cancel</button
-									>
-									<button
-										type="submit"
-										class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-										>Save</button
-									>
+								<div class="pt-5">
+									<div class="flex justify-end">
+										<small class="text-red-500 my-3">{error}</small>
+										<small class="green-500 my-3">{success}</small>
+									</div>
+									<div class="flex justify-end">
+										<button
+											on:click={() => onCancel()}
+											type="button"
+											class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+											>Cancel</button
+										>
+										<button
+											on:click={() => onSubmit()}
+											type="button"
+											class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+											>Save</button
+										>
+									</div>
 								</div>
 							</div>
 						</form>

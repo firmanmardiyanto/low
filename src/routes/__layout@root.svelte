@@ -11,7 +11,8 @@
 		page.subscribe((state) => {
 			pathname = state.url.pathname;
 		});
-	}
+	} 
+	
 	let user;
 	authStore.subscribe((state) => {
 		user = state[CONTEXTS.USER];

@@ -1,55 +1,25 @@
 <script>
+	import { onMount } from 'svelte';
+	import API from '../../../lib/API';
+
 	import authStore from '../../../stores/authStore';
 	import { CONTEXTS } from '../../../utils/constants';
 	import share from '../../../utils/share';
+
 	let user;
 	authStore.subscribe((state) => {
 		user = state[CONTEXTS.USER];
 		console.log(state);
 	});
 
-	const articles = [
-		{
-			id: 1,
-			title: 'ReactJs',
-			description:
-				'ReactJs is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies. React can be used as a base in the development of single-page or mobile applications.',
-			created_by: 'Firman',
-			created_at: '2020-01-01',
-			tags: 'ReactJs, JavaScript, UI',
-			viewers: 0
-		},
-		{
-			id: 2,
-			title: 'NodeJs',
-			description:
-				"Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine. Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient. Consequently, Node.js is a good choice for mid- to large-scale applications that are multi-threaded or use the cluster feature.",
-			created_by: 'Mardiyanto',
-			created_at: '2020-01-01',
-			tags: 'NodeJs, JavaScript, Server',
-			viewers: 97
-		},
-		{
-			id: 3,
-			title: 'Kotlin',
-			description:
-				'Kotlin is a programming language that is designed to be type-safe and flexible. It has a clean, simple syntax and is based on the concept of immutable data structures. It is a modern, interoperable, and robust language for building mobile and desktop applications.',
-			created_by: 'Dwika',
-			created_at: '2020-01-01',
-			tags: 'Kotlin, Programming Language, Android',
-			viewers: 92
-		},
-		{
-			id: 4,
-			title: 'Android Development',
-			description:
-				'Android is a mobile operating system developed by Google, based on the Linux kernel, and designed primarily for touchscreen mobile devices such as smartphones and tablets. It is based on the Android Runtime Environment (ART) and designed primarily for devices with a touch screen.',
-			created_by: 'Hilmi',
-			created_at: '2020-01-01',
-			tags: 'Android, Programming Language, Mobile',
-			viewers: 79
-		}
-	];
+	let articles = [];
+
+	onMount(() => {
+		API.get('/articles-me?published=1').then((res) => {
+			articles = res.articles;
+			console.log(articles);
+		});
+	});
 </script>
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -66,9 +36,7 @@
 						<ul class="grid grid-cols-1 gap-5">
 							<div>
 								<h3 class="text-lg leading-6 font-medium text-gray-900">Published</h3>
-								<p class="mt-1 text-sm text-gray-500">
-									List of published articles
-								</p>
+								<p class="mt-1 text-sm text-gray-500">List of published articles</p>
 							</div>
 							{#each articles as article}
 								<li class="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
@@ -78,7 +46,7 @@
 												<h3 class="text-gray-900 text-sm font-medium truncate">{article.title}</h3>
 												<span
 													class="flex-shrink-0 inline-block px-2 py-0.5 text-green-800 text-xs font-medium bg-green-100 rounded-full"
-													>{article.created_by}</span
+													>{article?.user?.name}</span
 												>
 											</div>
 											<p class="mt-1 text-gray-500 text-sm truncate">
@@ -87,7 +55,7 @@
 										</div>
 										<img
 											class="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0"
-											src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60"
+											src={article?.user?.photo}
 											alt=""
 										/>
 									</div>
@@ -99,7 +67,7 @@
 													href="#viewers"
 													class="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500"
 												>
-													{article.viewers} views
+													{article?.views} views
 												</a>
 											</div>
 											{#if user}
